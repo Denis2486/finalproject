@@ -1,3 +1,13 @@
-select login, sum(case when "inDelivery" = true then 1 else 0 end) 
-from "Orders" right join "Couriers" on ("Couriers".id = "courierId") 
+select login, 
+       count("Orders".id) 
+from "Couriers" 
+    left join "Orders" on ("Couriers".id = "courierId") 
+where "inDelivery"=true or "Orders".id is Null 
+group by "Couriers".id, login;
+
+--при таком запросе не учитываются курьеры с завершенными заказами (inDelivery=false)
+--Вариант решения проблемы:
+select login, 
+       count("Orders".id) 
+from "Couriers" left join (select id, "courierId" from "Orders" where "inDelivery"=true) as "Orders" on ("Couriers".id = "courierId") 
 group by "Couriers".id, login;
